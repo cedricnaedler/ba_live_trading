@@ -20,7 +20,7 @@ def connect_to_database(): # Connect to database @planetscale.com
         with engine.connect():
             return engine
     except Exception as e:
-        send_telegram_notification("[!] Error while connecting to MySQL.\n{e}")
+        send_telegram_notification(f"[!] Error while connecting to MySQL.\n{e}")
         quit()
 
 def send_telegram_notification(message): # Send telegram notification

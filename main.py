@@ -213,10 +213,10 @@ class Strategy:
         sleep(1)
         order_id = result["result"]["orderId"]
         order = self.get_order_history(order_id)
-        print(order_id, self.symbol, int(self.time_expected), int(result['time']), str(self.close), str(order['price']))
+        print(order_id, self.symbol, int(self.time_expected), int(result['time']), str(self.close), str(order['avgPrice']))
 
         with self.engine.connect() as connection:
-            connection.execute(text(f"INSERT INTO trades(order_id, symbol, time_expected, time_executed, price_expected, price_executed) VALUES ('{order_id}', '{self.symbol}', '{int(self.time_expected)}', '{int(result['time'])}', '{str(self.close)}', '{str(order['price'])}');"))
+            connection.execute(text(f"INSERT INTO trades(order_id, symbol, time_expected, time_executed, price_expected, price_executed) VALUES ('{order_id}', '{self.symbol}', '{int(self.time_expected)}', '{int(result['time'])}', '{str(self.close)}', '{str(order['avgPrice'])}');"))
             connection.commit()
 
 def main():

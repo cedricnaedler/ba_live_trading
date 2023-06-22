@@ -40,12 +40,11 @@ class Strategy:
         # Setup database connection and table (if not already exists)
         self.engine = connect_to_database()
         with self.engine.connect() as connection:
-            # connection.execute(text("DROP TABLE IF EXISTS trades;")) # Create table that holds all trades
-            # connection.execute(text("DROP TABLE IF EXISTS kline;")) # Create table that holds all kline data
-            # quit()
             connection.execute(text("CREATE TABLE IF NOT EXISTS trades(order_id NVARCHAR(255) NOT NULL, symbol NVARCHAR(255), time_expected NVARCHAR(255), time_executed NVARCHAR(255), price_expected NVARCHAR(255), price_executed NVARCHAR(255), PRIMARY KEY(order_id));")) # Create table that holds all trades
+            connection.execute(text(f"DELETE FROM trades WHERE symbol = '{self.symbol}'")) # Delete data of trades table for the current symbol only (reset)
             connection.execute(text("CREATE TABLE IF NOT EXISTS kline(start_time NVARCHAR(255) NOT NULL, symbol NVARCHAR(255), price_change TEXT, PRIMARY KEY(start_time, symbol));")) # Create table that holds all kline data
             connection.execute(text(f"DELETE FROM kline WHERE symbol = '{self.symbol}'")) # Delete data of kline table for the current symbol only (reset)
+            connection.commit()
 
         # Get existing kline data for standard deviation calculation
         self.get_historic_kline()
@@ -101,8 +100,6 @@ class Strategy:
                 , index = False
                 , chunksize = 1000
             )
-            # with self.engine.connect() as connection:
-            #     connection.execute(text("ALTER TABLE kline ADD PRIMARY KEY (start_time);"))
         except Exception as e:
             send_telegram_notification(f"[!] {self.symbol}\n{e}")
             quit()
@@ -145,6 +142,7 @@ class Strategy:
                 with self.engine.connect() as connection:
                     connection.execute(text(f"INSERT INTO kline(start_time, symbol, price_change) VALUES ('{int(self.start_time)}', '{str(self.symbol)}', '{str(price_change)}');")) # Add new kline data to database
                     connection.execute(text(f"DELETE FROM kline WHERE symbol = '{self.symbol}' ORDER BY start_time ASC LIMIT 1")) # Delete the oldest row to keep the same size
+                    connection.commit()
                     df = pd.read_sql(text(f"SELECT * FROM kline WHERE symbol = '{self.symbol}';"), connection)
                 
                 standard_deviation = df["price_change"].apply(float).std()
@@ -219,6 +217,7 @@ class Strategy:
 
         with self.engine.connect() as connection:
             connection.execute(text(f"INSERT INTO trades(order_id, symbol, time_expected, time_executed, price_expected, price_executed) VALUES ('{order_id}', '{self.symbol}', '{int(self.time_expected)}', '{int(result['time'])}', '{str(self.close)}', '{str(order['price'])}');"))
+            connection.commit()
 
 def main():
     symbols = [

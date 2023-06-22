@@ -221,13 +221,13 @@ class Strategy:
 
 def main():
     symbols = [
-        "1000PEPEUSDT"
-        , "XRPUSDT"
+        "BTCUSDT"
+        , "SCUSDT"
     ]
 
-    interval = 1
-    usd = 2
-    row_limit = 1000 # Row limit for database and standard deviation calculation
+    interval = 15
+    usd = 1000
+    row_limit = 10000 # Row limit for database and standard deviation calculation
 
     for symbol in symbols:
         Thread(target = Strategy(symbol, interval, usd, row_limit).get_kline).start()

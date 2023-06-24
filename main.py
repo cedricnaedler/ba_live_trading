@@ -41,7 +41,6 @@ class Strategy:
         self.engine = connect_to_database()
         with self.engine.connect() as connection:
             connection.execute(text("CREATE TABLE IF NOT EXISTS trades(order_id NVARCHAR(255) NOT NULL, symbol NVARCHAR(255), time_expected NVARCHAR(255), time_executed NVARCHAR(255), price_expected NVARCHAR(255), price_executed NVARCHAR(255), PRIMARY KEY(order_id));")) # Create table that holds all trades
-            connection.execute(text(f"DELETE FROM trades WHERE symbol = '{self.symbol}'")) # Delete data of trades table for the current symbol only (reset)
             connection.execute(text("CREATE TABLE IF NOT EXISTS kline(start_time NVARCHAR(255) NOT NULL, symbol NVARCHAR(255), price_change TEXT, PRIMARY KEY(start_time, symbol));")) # Create table that holds all kline data
             connection.execute(text(f"DELETE FROM kline WHERE symbol = '{self.symbol}'")) # Delete data of kline table for the current symbol only (reset)
             connection.commit()

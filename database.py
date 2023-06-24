@@ -11,8 +11,10 @@ def connect_to_database(): # Connect to database @planetscale.com
 def get_sql():
     engine = connect_to_database()
     with engine.connect() as connection:
-        print(pd.read_sql(text(f"SELECT * FROM trades;"), connection))
-        print(pd.read_sql(text(f"SELECT * FROM kline;"), connection))
+        df = pd.read_sql(text(f"SELECT * FROM trades;"), connection)
+        print(df.sort_values(by = ["time_expected"]))
+        df = pd.read_sql(text(f"SELECT * FROM kline;"), connection)
+        print(df.sort_values(by = ["start_time"]))
 
 def main():
     get_sql()

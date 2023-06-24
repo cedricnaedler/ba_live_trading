@@ -140,6 +140,7 @@ class Strategy:
                 print(f"[{self.symbol}] {self.start_time}: {round(price_change * 100, 4)}%")
 
                 with self.engine.connect() as connection:
+                    if pd.read_sql(text(f"SELECT * FROM kline WHERE start_time = '{int(self.start_time)}' AND symbol = '{str(self.symbol)}';"), connection).shape[0] != 0: break # Make sure the entry does not already exist
                     connection.execute(text(f"INSERT INTO kline(start_time, symbol, price_change) VALUES ('{int(self.start_time)}', '{str(self.symbol)}', '{str(price_change)}');")) # Add new kline data to database
                     connection.execute(text(f"DELETE FROM kline WHERE symbol = '{self.symbol}' ORDER BY start_time ASC LIMIT 1")) # Delete the oldest row to keep the same size
                     connection.commit()
